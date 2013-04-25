@@ -1,0 +1,15 @@
+module org {
+  module opensplice {
+    module mobile {
+      module demo {
+	module idl {
+	  struct ChatMessage {
+	    string user;
+	    string msg;
+	  };
+	  #pragma keylist ChatMessage user
+	};
+      };
+    };
+  };
+};

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="lib" path="libs/mobile-dds-1.0.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/mobile-dds-core-1.0.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/mobile-ddsi-1.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/netty-3.6.3.Final.jar"/>
+	<classpathentry kind="lib" path="assets/slf4j-api-1.6.2.jar"/>
+	<classpathentry kind="lib" path="assets/trove4j-3.0.2.jar"/>
+	<classpathentry kind="lib" path="assets/commons-io-2.1.jar"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>
