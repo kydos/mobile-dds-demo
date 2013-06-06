@@ -1,0 +1,378 @@
+<!--
+
+OpenSplice Mobile
+
+This software and documentation are Copyright 2010 to 2013 PrismTech
+Limited and its licensees. All rights reserved. See file:
+
+docs/LICENSE.html
+
+for full copyright notice and license terms.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.opensplice.mobile</groupId>
+      <artifactId>parent-pom</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+      <relativePath>../../parent-pom</relativePath>
+   </parent>
+
+   <groupId>org.opensplice.mobile.demo</groupId>
+   <artifactId>oximeter</artifactId>
+   <packaging>apk</packaging>
+
+   <name>OpenSplice Mobile example: oximeter</name>
+
+   <properties>
+      <android-minimum-platform-version>4.0.1.2</android-minimum-platform-version>
+      <android-target-api-version>17</android-target-api-version>
+      <android-support-v4-version>r7</android-support-v4-version>
+   </properties>
+
+     <repositories>
+       <repository>
+         <id>nuvo-io snapshots</id>
+         <url>http://nuvo-io.github.com/mvn-repo/snapshots</url>
+         <snapshots>
+           <enabled>true</enabled>
+         </snapshots>
+       </repository>
+       <repository>
+         <id>nuvo-io releases</id>
+         <url>http://nuvo-io.github.com/mvn-repo/releases</url>
+         <releases>
+           <enabled>false</enabled>
+         </releases>
+       </repository>
+     </repositories>
+
+   <dependencies>
+      <!-- ANDROID platform -->
+      <dependency>
+         <groupId>com.google.android</groupId>
+         <artifactId>android</artifactId>
+         <version>${android-minimum-platform-version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- ANDROID support -->
+      <dependency>
+         <groupId>com.google.android</groupId>
+         <artifactId>support-v4</artifactId>
+         <version>${android-support-v4-version}</version>
+      </dependency>
+
+      <!-- NOTE: dependency to OpenSplice Mobile is defined in profiles because we -->
+      <!--       want to disable logging for release (validation profile). Thus:   -->
+      <!--        - in default profile: depend on OpenSplice Mobile, replacing     -->
+      <!--                              dependency to slf4j-api with slf4j-android -->
+      <!--        - in validation profile: depend on OpenSplice Mobile only,       -->
+      <!--                                 without any slf4j backend               -->
+
+      <dependency>
+         <groupId>org.scala-lang</groupId>
+         <artifactId>scala-library</artifactId>
+         <version>2.10.1</version>
+      </dependency>
+
+      <dependency>
+         <groupId>com.androidplot</groupId>
+         <artifactId>androidplot-core</artifactId>
+         <version>0.5.2-SNAPSHOT</version>
+      </dependency>
+
+          <dependency>
+            <groupId> io.nuvo </groupId>
+            <artifactId>moliere_2.10</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+          </dependency>
+
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.scala-tools</groupId>
+            <artifactId>maven-scala-plugin</artifactId>
+            <version>2.13.1</version>
+            <executions>
+               <execution>
+                  <id>scala-compile-first</id>
+                  <phase>process-resources</phase>
+                  <goals>
+                     <goal>add-source</goal>
+                     <goal>compile</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>scala-test-compile</id>
+                  <phase>process-test-resources</phase>
+                  <goals>
+                     <goal>testCompile</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.opensplice.mobile</groupId>
+            <artifactId>idl2j</artifactId>
+            <version>${project.version}</version>
+            <executions>
+               <execution>
+                  <id>idl-compile</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>idl-compile</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+            <artifactId>android-maven-plugin</artifactId>
+            <configuration>
+               <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+               <assetsDirectory>${project.basedir}/src/main/assets</assetsDirectory>
+               <resourceDirectory>${project.basedir}/res</resourceDirectory>
+               <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
+               <sdk>
+                  <platform>${android-target-api-version}</platform>
+               </sdk>
+               <undeployBeforeDeploy>true</undeployBeforeDeploy>
+               <proguard>
+                  <skip>false</skip>
+                  <config>proguard.cfg</config>
+               </proguard>
+               <manifest>
+                  <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
+               </manifest>
+            </configuration>
+            <extensions>true</extensions>
+            <!-- force update of AndroidManifest.xml in case project version changed -->
+            <executions>
+               <execution>
+                  <id>update AndroidManifest</id>
+                  <phase>initialize</phase>
+                  <goals>
+                     <goal>manifest-update</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <!-- correct the AndroidManifest.xml since manifest-update messed the header up -->
+         <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>correct AndroidManifest header</id>
+                  <phase>initialize</phase>
+                  <goals>
+                     <goal>execute</goal>
+                  </goals>
+                  <configuration>
+                     <source><![CDATA[
+                        file = new File("${basedir}/AndroidManifest.xml")
+                        fileContent = file.text
+                        // add \n after end of first comment (i.e. copyright header)
+                        fileContent = fileContent.replaceFirst("-->", "-->\n")
+                        // remove -SNAPSHOT in versionName (otherwise it's kept at release)
+                        fileContent = fileContent.replaceFirst("-SNAPSHOT", "")
+                        file.write(fileContent)
+                        ]]>
+              </source>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
+      </plugins>
+
+      <pluginManagement>
+         <plugins>
+            <!--This plugin's configuration is used to store Eclipse m2e settings
+                only. It has no influence on the Maven build itself. -->
+            <plugin>
+               <groupId>org.eclipse.m2e</groupId>
+               <artifactId>lifecycle-mapping</artifactId>
+               <version>1.0.0</version>
+               <configuration>
+                  <lifecycleMappingMetadata>
+                     <pluginExecutions>
+                        <pluginExecution>
+                           <pluginExecutionFilter>
+                              <groupId>org.opensplice.mobile</groupId>
+                              <artifactId>idl2j</artifactId>
+                              <versionRange>[0.9.0-SNAPSHOT,)</versionRange>
+                              <goals>
+                                 <goal>idl-compile</goal>
+                              </goals>
+                           </pluginExecutionFilter>
+                           <action>
+                              <ignore />
+                           </action>
+                        </pluginExecution>
+                        <pluginExecution>
+                           <pluginExecutionFilter>
+                              <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                              <artifactId>android-maven-plugin</artifactId>
+                              <versionRange>${android-maven-plugin-version}</versionRange>
+                              <goals>
+                                 <goal>manifest-update</goal>
+                              </goals>
+                           </pluginExecutionFilter>
+                           <action>
+                              <ignore />
+                           </action>
+                        </pluginExecution>
+                        <pluginExecution>
+                           <pluginExecutionFilter>
+                              <groupId>org.codehaus.gmaven</groupId>
+                              <artifactId>gmaven-plugin</artifactId>
+                              <versionRange>${gmaven-plugin-version}</versionRange>
+                              <goals>
+                                 <goal>execute</goal>
+                              </goals>
+                           </pluginExecutionFilter>
+                           <action>
+                              <ignore />
+                           </action>
+                        </pluginExecution>
+                     </pluginExecutions>
+                  </lifecycleMappingMetadata>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
+
+   <profiles>
+      <!-- default profile -->
+
+      <profile>
+         <id>android-sdk</id>
+         <properties>
+            <android.sdk.path>
+               /Users/angelo/Tools/adt-bundle-mac-x86_64-20130522/sdk
+            </android.sdk.path>
+         </properties>
+      </profile>
+
+      <profile>
+         <id>default</id>
+         <activation><activeByDefault>true</activeByDefault></activation>
+         <dependencies>
+            <!-- OpenSplice Mobile -->
+            <dependency>
+               <groupId>org.opensplice.mobile</groupId>
+               <artifactId>ospl-mobile</artifactId>
+               <version>${project.version}</version>
+               <!-- Exclude slf4j-api since slf4j-android include it -->
+               <exclusions>
+                  <exclusion>
+                     <groupId>org.slf4j</groupId>
+                     <artifactId>slf4j-api</artifactId>
+                  </exclusion>
+               </exclusions>
+            </dependency>
+
+            <!-- SLF4J Android backend -->
+            <dependency>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+            </dependency>
+         </dependencies>
+      </profile>
+
+      <!-- validation profile -->
+      <profile>
+         <id>validation</id>
+         <dependencies>
+            <!-- OpenSplice Mobile only (no slf4j backend) -->
+            <dependency>
+               <groupId>org.opensplice.mobile</groupId>
+               <artifactId>ospl-mobile</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+
+         </dependencies>
+         <build>
+            <plugins>
+               <!-- sign the APK -->
+               <plugin>
+                  <groupId>org.codehaus.gmaven</groupId>
+                  <artifactId>gmaven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>sign APK</id>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                           <source><![CDATA[
+                              mvnCommand = ["mvn"]
+                              mvnGoal = ["initialize"]
+                              mvnOptions = [
+                                      "-Dkeystore-path=${project.basedir}/../../jar-signer/src/main/resources/PrismTechSignature.keystore",
+                                      "-Darchive-directory=${project.build.directory}",
+                                      "-f", "${project.basedir}/../../jar-signer/pom.xml"]
+
+                              proc = (mvnCommand + mvnOptions + mvnGoal).execute()
+                              println "${proc.in.text}"
+                              println "${proc.err.text}"
+                              if (proc.exitValue() != 0) fail("Maven command failed with exit value: "+proc.exitValue())
+                              ]]>
+                  </source>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+
+               <!-- For android plugin: set release mode and zip-alignment -->
+               <plugin>
+                  <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                  <artifactId>android-maven-plugin</artifactId>
+                  <configuration>
+                     <!-- release mode -->
+                     <release>true</release>
+                     <!-- don't sign as debug (otherwise unable to sign for real) -->
+                     <sign><debug>false</debug></sign>
+                     <!-- activate zip alignment -->
+                     <zipalign><skip>false</skip></zipalign>
+                  </configuration>
+                  <executions>
+                     <!-- zip-alignment -->
+                     <execution>
+                        <id>alignApk</id>
+                        <phase>verify</phase>
+                        <goals>
+                           <goal>zipalign</goal>
+                        </goals>
+                     </execution>
+                     <!-- in validation: deploy the zipaligned jar -->
+                     <execution>
+                        <phase>deploy</phase>
+                        <configuration>
+                           <android>
+                              <file>${project.build.directory}/${project.artifactId}-${project.version}-aligned.apk</file>
+                           </android>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+
+</project>

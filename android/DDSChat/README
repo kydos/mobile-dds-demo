@@ -4,7 +4,7 @@ This example implements a simple chat for Android using DDS.
 Once installed OpenSplice Mobile (http://www.prismtech.com/opensplice/software-downloads) you can simply do the following:
 
 $ mvn -DskipTests package
-$ adb install ./bin/DDSChat.apk
+$ adb install ./target/ddschat-1.0.1-SNAPSHOT.apk
 
 Have Fun!
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1000001" android:versionName="1.0.1" package="org.opensplice.mobile.demo">
+
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+
+    <application android:allowBackup="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:largeHeap="true" android:name="OximeterApp" android:theme="@style/AppTheme">
+        <activity android:label="@string/app_name" android:name="org.opensplice.mobile.demo.DiscoveryActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="@string/app_name" android:name="org.opensplice.mobile.demo.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN1"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
